@@ -107,8 +107,7 @@ function main() {
   startMarkingLoAF();
 
   createTasks(() => {
-    const now = performance.now().toString();
-    appDiv.innerHTML = now;
+    appDiv.innerHTML = performance.now().toFixed(0);
 
     // If you "need a next paint" quickly...
     markNeedsNextPaint();
