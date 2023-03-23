@@ -42,7 +42,7 @@ function createTasks(cb) {
         cb();
       },
       { signal: controller.signal }
-    );
+    ).catch((ex) => { });
   }
 }
 
