@@ -67,21 +67,21 @@ function startRunLoop(cb) {
  * open -a /Applications/Google\ Chrome\ Canary.app/Contents/MacOS/Google\ Chrome\ Canary --args --force-enable-metrics-reporting --enable-blink-featutres=LongAnimationFrameTiming
  */
 function startMarkingLoAF() {
-  // if (
-  //   !PerformanceObserver.supportedEntryTypes.includes('long-animation-frame')
-  // ) {
-  //   return console.warn(
-  //     'LoAF Entry type not supported.  Type launching Canary with --enable-blink-featutres=LongAnimationFrameTiming'
-  //   );
-  // }
+  if (
+    !PerformanceObserver.supportedEntryTypes.includes('long-animation-frame')
+  ) {
+    return console.warn(
+      'LoAF Entry type not supported.  Type launching Canary with --enable-blink-featutres=LongAnimationFrameTiming'
+    );
+  }
 
   const observer = new PerformanceObserver((list) => {
     for (let entry of list.getEntries()) {
+      // console.log(entry);
       performance.measure('LoAF', {
         start: entry.startTime,
         duration: entry.duration,
       });
-      console.log(entry);
     }
   });
   observer.observe({ type: 'long-animation-frame', buffered: true });
