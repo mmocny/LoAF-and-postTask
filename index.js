@@ -94,7 +94,7 @@ function stopTheDemoEventually(stopRunLoop) {
       stopRunLoop();
       controller.abort();
     },
-    { priority: 'user-blocking', signal: controller.signal, delay: DEMO_LENGTH }
+    { priority: 'user-blocking', delay: DEMO_LENGTH }
   );
 }
 
