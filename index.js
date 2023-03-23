@@ -1,5 +1,3 @@
-const appDiv = document.getElementById('app');
-
 // const DELAY_PER_FRAME = 200; // ms.  Using 100 because that is the deadline for NORMAL priority rendering in Chrome.
 const DELAY_PER_TASK = 10; // ms.
 const DEMO_LENGTH = 10_000; // ms.
@@ -107,7 +105,7 @@ function main() {
   startMarkingLoAF();
 
   createTasks(() => {
-    appDiv.innerHTML = performance.now().toFixed(0);
+    timer.innerHTML = performance.now().toFixed(0);
 
     // If you "need a next paint" quickly...
     markNeedsNextPaint();
@@ -121,7 +119,9 @@ function main() {
   stopTheDemoEventually(stopRunLoop);
 }
 
-main();
+setTimeout(() => {
+  main();
+}, 1000);
 
 
 
