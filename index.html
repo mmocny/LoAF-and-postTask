@@ -1,6 +1,7 @@
 <!doctype html>
 
 <head>
+  <meta name="viewport" content="width=device-width"/>
   <script src="https://unpkg.com/scheduler-polyfill"></script>
   <link rel="stylesheet" href="index.css"></link>
 </head>
@@ -10,7 +11,10 @@
     <a href="https://github.com/mmocny/LoAF-and-postTask"><img decoding="async" loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1"></a>
   </div>
   <main>
-    <div id="timer"></div>
+    <div>
+      <div id="timer">0</div>
+      <input id="stopButton" type="button" value="stop"></input>
+    </div>
   </main>
   <script type="module" src="./index.js" async></script>
 </body>

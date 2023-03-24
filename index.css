@@ -22,3 +22,19 @@ main {
   font-size: 3em;
   color: #eee;
 }
+
+main > div:first-child {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#stopButton {
+  margin-top: 3em;
+  background-color: #555;
+  color: #eee;
+  padding: 1em;
+  border: 2px solid #111;
+  border-radius: 1em;
+}

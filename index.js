@@ -26,22 +26,16 @@ function block(ms) {
 }
 
 /*
- * Create a bunch of "small" tasks.  Each of which will:
- * - yield to run loop
- * - attempt to modify DOM (invalidation -> needsBeginFrames)
- *
- * However, they are all queued up-front, rather than waterfall
+ * Schedule `numTasks` to run on main thread
+ * Rather than a "waterfall" of tasks, such as:
+ * setTimeout(() => setTimeout...)
+ * These are all scheduled up front, in FIFO order
  */
-function createTasks(cb) {
-  const count = DEMO_LENGTH / DELAY_PER_TASK;
-
-  for (let i = 0; i < count; i++) {
-    scheduler.postTask(
-      () => {
-        block(DELAY_PER_TASK);
-        cb();
-      },
-      { signal: controller.signal }
+function createTasks(numTasks, cb) {
+  for (let i = 0; i < numTasks; i++) {
+    scheduler.postTask(cb, {
+        signal: controller.signal,
+      }
     ).catch((ex) => { });
   }
 }
@@ -49,7 +43,7 @@ function createTasks(cb) {
 /*
  * Start a rAF loop
  */
-function startRunLoop(cb) {
+function startRAFLoop(cb) {
   let rafid = 0;
   function raf() {
     rafid = requestAnimationFrame(() => {
@@ -67,9 +61,7 @@ function startRunLoop(cb) {
  * open -a /Applications/Google\ Chrome\ Canary.app/Contents/MacOS/Google\ Chrome\ Canary --args --force-enable-metrics-reporting --enable-blink-featutres=LongAnimationFrameTiming
  */
 function startMarkingLoAF() {
-  if (
-    !PerformanceObserver.supportedEntryTypes.includes('long-animation-frame')
-  ) {
+  if (!PerformanceObserver.supportedEntryTypes.includes('long-animation-frame')) {
     return console.warn(
       'LoAF Entry type not supported.  Type launching Canary with --enable-blink-featutres=LongAnimationFrameTiming'
     );
@@ -77,7 +69,7 @@ function startMarkingLoAF() {
 
   const observer = new PerformanceObserver((list) => {
     for (let entry of list.getEntries()) {
-      // console.log(entry);
+      console.log(entry);
       performance.measure('LoAF', {
         start: entry.startTime,
         duration: entry.duration,
@@ -87,16 +79,7 @@ function startMarkingLoAF() {
   observer.observe({ type: 'long-animation-frame', buffered: true });
 }
 
-function stopTheDemoEventually(stopRunLoop) {
-  // Like setTimeout but higher priority
-  scheduler.postTask(
-    () => {
-      stopRunLoop();
-      controller.abort();
-    },
-    { priority: 'user-blocking', delay: DEMO_LENGTH }
-  );
-}
+
 
 /*
  * Lets get going!
@@ -104,19 +87,34 @@ function stopTheDemoEventually(stopRunLoop) {
 function main() {
   startMarkingLoAF();
 
-  createTasks(() => {
-    timer.innerHTML = performance.now().toFixed(0);
+  const start = performance.now();
+
+  createTasks(1000, () => {
+    // Update the DOM
+    const now = performance.now()
+    timer.innerHTML = now.toFixed(0);
+
+    // Add a bit of work to the task
+    block(10);
 
     // If you "need a next paint" quickly...
     markNeedsNextPaint();
   });
-  // Every raf, create a new set of Tasks, which try update the DOM
-  // We *should* have a DOM update every 10ms and a raf every opportunity... but we dont!
-  const stopRunLoop = startRunLoop(() => {
+
+  const stopRAFLoop = startRAFLoop(() => {
     markDoneNextPaint();
   });
 
-  stopTheDemoEventually(stopRunLoop);
+  stopButton.addEventListener('click', () => {
+    stopRAFLoop();
+    controller.abort();
+  });
+
+  scheduler.postTask(() => stopTheDemo(stopRunLoop),{
+    priority: 'user-blocking',
+    delay: DEMO_LENGTH,
+  }
+);
 }
 
 setTimeout(() => {
